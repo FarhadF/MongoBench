@@ -32,43 +32,17 @@ func Bench(threads int) {
 		panic(err)
 	}
 	mongoSession.SetMode(mgo.Monotonic, true)
-	//var waitGroup sync.WaitGroup
-	//      waitGroup.Add(10)
-	//t := make(chan *time.Duration)
+
 	ch := make(chan time.Duration)
-	for query := 0; query < 100; query++ {
+	for query := 0; query < threads; query++ {
 		go RunQuery(query, mongoSession, ch)
 	}
-	//defer session.Close()
 
-	//mongoSession = session.DB("journaldb").C("journal")
-	//      err = mongoSession.Insert(&Person{"Ale", "+55 53 8116 9639"},
-	//              &Person{"Cla", "+55 53 8402 8510"})
-	//      if err != nil {
-	//              log.Fatal(err)
-	//      }
-
-	//      var m bson.M
-
-	//      before := time.Now()
-	//      err = mongoSession.Find(nil).One(&m)
-	//      if err != nil {
-	//              log.Fatal(err)
-	//      }
-	//      elapsed := time.Since(before)
-	//      enc := json.NewEncoder(os.Stdout)
-	//      enc.SetIndent("", "  ")
-	//      if err := enc.Encode(m); err != nil {
-	//              panic(err)
-	//      }
-
-	//      fmt.Println(elapsed)
-	//waitGroup.Wait()
 	var x []time.Duration
 	for i := 0; i < threads; i++ {
-		//var dur []time.Duration
+
 		x = append(x, <-ch)
-		//fmt.Println(dur)
+
 	}
 
 	var total time.Duration
