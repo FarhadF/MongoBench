@@ -18,11 +18,17 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"log"
+	"mongobench/bench"
 	"os"
+	"strconv"
 	"strings"
 )
 
-var cfgFile string
+var (
+	cfgFile string
+	threads int
+)
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -38,14 +44,15 @@ func rootCmd(cmd *cobra.Command, args []string) {
 	if versionFlag := getFlagBoolPtr(cmd, "version"); versionFlag != nil {
 		fmt.Println("MongoBench v1.0.0")
 	} else {
-		fmt.Println("Do work")
+		threads = getFlagInt(cmd, "threads")
+		bench.Bench(threads)
 	}
 }
 
 func getFlagBoolPtr(cmd *cobra.Command, flag string) *bool {
 	f := cmd.Flags().Lookup(flag)
 	if f == nil {
-		fmt.Printf("Flag accessed but not defined for command %s: %s", cmd.Name(), flag)
+		log.Printf("Flag accessed but not defined for command %s: %s", cmd.Name(), flag)
 	}
 	// Check if flag was not set at all.
 	if !f.Changed && f.DefValue == f.Value.String() {
@@ -59,6 +66,21 @@ func getFlagBoolPtr(cmd *cobra.Command, flag string) *bool {
 		ret = false
 	}
 	return &ret
+}
+
+//check kubernetes /pkg/kubectl/cmd/cmd.go for examples
+func getFlagInt(cmd *cobra.Command, flag string) int {
+	f := cmd.Flags().Lookup(flag)
+	if f == nil {
+		log.Printf("Flag accessed but not defined for command %s: %s", cmd.Name(), flag)
+	}
+	v, err := strconv.Atoi(f.Value.String())
+	// This is likely not a sufficiently friendly error message, but cobra
+	// should prevent non-integer values from reaching here.
+	if err != nil {
+		log.Println(err)
+	}
+	return v
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -81,6 +103,7 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	RootCmd.Flags().BoolP("version", "v", false, "Prints version")
+	RootCmd.Flags().IntVarP(&threads, "threads", "t", 100, "Total number of threads to use. Equal to number of queries against mongodb.")
 }
 
 // initConfig reads in config file and ENV variables if set.
