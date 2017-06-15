@@ -31,14 +31,15 @@ var RootCmd = &cobra.Command{
 	Long:  `A small Benchmark tool for mongo deployment`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(args)
-		if versionFlag := getFlagBoolPtr(cmd, "version"); versionFlag != nil {
-			fmt.Println("print the fucking version")
-		} else {
-			fmt.Println("wtf")
-		}
-	},
+	Run: rootCmd,
+}
+
+func rootCmd(cmd *cobra.Command, args []string) {
+	if versionFlag := getFlagBoolPtr(cmd, "version"); versionFlag != nil {
+		fmt.Println("MongoBench v1.0.0")
+	} else {
+		fmt.Println("Do work")
+	}
 }
 
 func getFlagBoolPtr(cmd *cobra.Command, flag string) *bool {
@@ -79,7 +80,7 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	RootCmd.Flags().BoolP("version", "v", false, "Prints Version")
+	RootCmd.Flags().BoolP("version", "v", false, "Prints version")
 }
 
 // initConfig reads in config file and ENV variables if set.
