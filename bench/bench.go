@@ -20,7 +20,7 @@ const (
 
 var users = []string{"user1", "user2"}
 
-func Bench(threads int) {
+func Bench(threads int, batch int) {
 	mongoDbDialInfo := &mgo.DialInfo{
 		Addrs:    []string{MongoDbHosts},
 		Timeout:  5 * time.Second,
@@ -33,18 +33,22 @@ func Bench(threads int) {
 	}
 	mongoSession.SetMode(mgo.Monotonic, true)
 
+	b := threads / batch
+
 	ch := make(chan time.Duration)
-	for query := 0; query < threads; query++ {
-		go RunQuery(query, mongoSession, ch)
-	}
-
 	var x []time.Duration
-	for i := 0; i < threads; i++ {
 
-		x = append(x, <-ch)
+	for j := 0; j < b; j++ {
+		for query := 0; query < batch; query++ {
+			go RunQuery(query, j, mongoSession, ch)
+		}
 
+		for i := 0; i < batch; i++ {
+
+			x = append(x, <-ch)
+
+		}
 	}
-
 	var total time.Duration
 	var n, slowest time.Duration
 	for _, value := range x {
@@ -56,9 +60,10 @@ func Bench(threads int) {
 	}
 	fmt.Println("Average: ", total.Seconds()/float64(len(x)), "s")
 	fmt.Println("Slowest: ", slowest)
+	fmt.Println(b)
 }
 
-func RunQuery(query int, mongoSession *mgo.Session, ch chan time.Duration) {
+func RunQuery(query int, b int, mongoSession *mgo.Session, ch chan time.Duration) {
 	//defer waitGroup.Done()
 	sessionCopy := mongoSession.Copy()
 	rand.Seed(time.Now().UnixNano())
@@ -85,7 +90,7 @@ func RunQuery(query int, mongoSession *mgo.Session, ch chan time.Duration) {
 	if err != nil {
 		log.Println("Find:", err)
 	}
-	fmt.Println("Query in thread ", query, " Completed. Elapsed Time: ", dur, "and query was: ", q[n])
+	fmt.Println("batch:", b, "Query in thread", query, "Completed. Elapsed Time:", dur, "and query was:", q[n])
 	ch <- dur
 
 }

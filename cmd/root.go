@@ -28,6 +28,7 @@ import (
 var (
 	cfgFile string
 	threads int
+	batch   int
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -45,7 +46,8 @@ func rootCmd(cmd *cobra.Command, args []string) {
 		fmt.Println("MongoBench v1.0.0")
 	} else {
 		threads = getFlagInt(cmd, "threads")
-		bench.Bench(threads)
+		batch = getFlagInt(cmd, "batch")
+		bench.Bench(threads, batch)
 	}
 }
 
@@ -104,6 +106,7 @@ func init() {
 	// when this action is called directly.
 	RootCmd.Flags().BoolP("version", "v", false, "Prints version")
 	RootCmd.Flags().IntVarP(&threads, "threads", "t", 100, "Total number of threads to use. Equal to number of queries against mongodb.")
+	RootCmd.Flags().IntVarP(&batch, "batch", "b", 100, "Number of threads per batch.")
 }
 
 // initConfig reads in config file and ENV variables if set.
