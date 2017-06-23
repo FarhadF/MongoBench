@@ -75,7 +75,7 @@ func RunQuery(query int, b int, mongoSession *mgo.Session, ch chan time.Duration
 
 	Collection := sessionCopy.DB("journaldb").C("journal")
 	defer sessionCopy.Close()
-	var res bson.M
+	var res []bson.M
 	length := len(lines)
 	q := make([]bson.M, length)
 	for i := 0; i < length; i++ {
@@ -87,7 +87,7 @@ func RunQuery(query int, b int, mongoSession *mgo.Session, ch chan time.Duration
 	}
 	n := rand.Int() % len(q)
 	start := time.Now()
-	err := Collection.Find(q[n]).One(&res)
+	err := Collection.Find(q[n]).All(&res)
 	dur := time.Since(start)
 	if err != nil {
 		log.Println("Find:", err)
