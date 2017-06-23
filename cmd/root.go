@@ -26,9 +26,10 @@ import (
 )
 
 var (
-	cfgFile string
-	threads int
-	batch   int
+	cfgFile       string
+	threads       int
+	batch         int
+	queryFilePath string
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -47,7 +48,7 @@ func rootCmd(cmd *cobra.Command, args []string) {
 	} else {
 		threads = getFlagInt(cmd, "threads")
 		batch = getFlagInt(cmd, "batch")
-		bench.Bench(threads, batch)
+		bench.Bench(threads, batch, queryFilePath)
 	}
 }
 
@@ -107,6 +108,7 @@ func init() {
 	RootCmd.Flags().BoolP("version", "v", false, "Prints version")
 	RootCmd.Flags().IntVarP(&threads, "threads", "t", 100, "Total number of threads to use. Equal to number of queries against mongodb.")
 	RootCmd.Flags().IntVarP(&batch, "batch", "b", 100, "Number of threads per batch.")
+	RootCmd.Flags().StringVarP(&queryFilePath, "queryFile", "q", "/tmp/query", `Path to the query file, one query per line. Only the query string, example: {"branchCode": 230}"`)
 }
 
 // initConfig reads in config file and ENV variables if set.
