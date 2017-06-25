@@ -22,7 +22,7 @@ const (
 func Bench(threads int, batch int, queryFilePath string) {
 	mongoDbDialInfo := &mgo.DialInfo{
 		Addrs:    []string{MongoDbHosts},
-		Timeout:  5 * time.Second,
+		Timeout:  15 * time.Second,
 		Database: Database,
 	}
 
@@ -33,6 +33,11 @@ func Bench(threads int, batch int, queryFilePath string) {
 	mongoSession.SetMode(mgo.Monotonic, true)
 
 	lines, err := readLines(queryFilePath)
+	/*	fmt.Println(lines)
+		for _, line := range lines {
+			fmt.Println("line: ")
+			fmt.Println(line)
+		}*/
 	if err != nil {
 		log.Fatal("readlines err: ", err)
 	}
@@ -42,9 +47,22 @@ func Bench(threads int, batch int, queryFilePath string) {
 	ch := make(chan time.Duration)
 	var x []time.Duration
 
+	length := len(lines)
+	q := make([]bson.M, length)
+	//var q []bson.M
+	fmt.Println(length)
+	for i := 0; i < length; i++ {
+		//		fmt.Println(lines[i])
+		err := bson.UnmarshalJSON([]byte(lines[i]), &q[i])
+
+		if err != nil {
+			log.Println("Error: ", err)
+		}
+	}
+
 	for j := 0; j < b; j++ {
 		for query := 0; query < batch; query++ {
-			go RunQuery(query, j, mongoSession, ch, lines)
+			go RunQuery(query, j, mongoSession, ch, lines, q)
 		}
 
 		for i := 0; i < batch; i++ {
@@ -67,7 +85,7 @@ func Bench(threads int, batch int, queryFilePath string) {
 	fmt.Println(b)
 }
 
-func RunQuery(query int, b int, mongoSession *mgo.Session, ch chan time.Duration, lines []string) {
+func RunQuery(query int, b int, mongoSession *mgo.Session, ch chan time.Duration, lines []string, q []bson.M) {
 	//defer waitGroup.Done()
 	sessionCopy := mongoSession.Copy()
 	rand.Seed(time.Now().UnixNano())
@@ -76,15 +94,18 @@ func RunQuery(query int, b int, mongoSession *mgo.Session, ch chan time.Duration
 	Collection := sessionCopy.DB("journaldb").C("journal")
 	defer sessionCopy.Close()
 	var res []bson.M
-	length := len(lines)
-	q := make([]bson.M, length)
-	for i := 0; i < length; i++ {
-		er := bson.UnmarshalJSON([]byte(lines[i]), &q[i])
+	/*
+		length := len(lines)
+		q := make([]bson.M, length)
+		for i := 0; i < length; i++ {
+			fmt.Println(lines[i])
+			er := bson.UnmarshalJSON([]byte(lines[i]), &q[i])
 
-		if er != nil {
-			panic("wtf")
+			if er != nil {
+				log.Panic("Error: ", er)
+			}
 		}
-	}
+	*/
 	n := rand.Int() % len(q)
 	start := time.Now()
 	err := Collection.Find(q[n]).All(&res)
