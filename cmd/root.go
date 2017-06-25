@@ -1,4 +1,4 @@
-// Copyright © 2017 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2017 Farhad Farahi <farhad.farahi@gmail.com>
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import (
 	"log"
 	"mongobench/bench"
 	"os"
-	"strconv"
+	_ "strconv"
 	"strings"
 )
 
@@ -30,6 +30,10 @@ var (
 	threads       int
 	batch         int
 	queryFilePath string
+	host          string
+	database      string
+	collection    string
+	timeout       int
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -46,9 +50,7 @@ func rootCmd(cmd *cobra.Command, args []string) {
 	if versionFlag := getFlagBoolPtr(cmd, "version"); versionFlag != nil {
 		fmt.Println("MongoBench v1.0.0")
 	} else {
-		threads = getFlagInt(cmd, "threads")
-		batch = getFlagInt(cmd, "batch")
-		bench.Bench(threads, batch, queryFilePath)
+		bench.Bench(threads, batch, queryFilePath, host, database, collection, timeout)
 	}
 }
 
@@ -71,7 +73,7 @@ func getFlagBoolPtr(cmd *cobra.Command, flag string) *bool {
 	return &ret
 }
 
-//check kubernetes /pkg/kubectl/cmd/cmd.go for examples
+/*
 func getFlagInt(cmd *cobra.Command, flag string) int {
 	f := cmd.Flags().Lookup(flag)
 	if f == nil {
@@ -85,6 +87,7 @@ func getFlagInt(cmd *cobra.Command, flag string) int {
 	}
 	return v
 }
+*/
 
 // Execute adds all child commands to the root command sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -106,9 +109,13 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	RootCmd.Flags().BoolP("version", "v", false, "Prints version")
-	RootCmd.Flags().IntVarP(&threads, "threads", "t", 100, "Total number of threads to use. Equal to number of queries against mongodb.")
+	RootCmd.Flags().IntVarP(&threads, "threads", "t", 100, "Total number of threads to use. Equal to number of queries against mongodb")
 	RootCmd.Flags().IntVarP(&batch, "batch", "b", 100, "Number of threads per batch.")
-	RootCmd.Flags().StringVarP(&queryFilePath, "queryFile", "q", "/tmp/query", `Path to the query file, one query per line. Only the query string, example: {"branchCode": 230}"`)
+	RootCmd.Flags().StringVarP(&queryFilePath, "queryFile", "q", "/tmp/query", `Path to the query file, one query per line. Only the query string, example: {"branchCode":230}"`)
+	RootCmd.Flags().StringVarP(&host, "host", "H", "localhost:27017", "IP addresses or Hostnames and ports of the mongo hosts to connect to separated by commas, example: mongo1:27017, mongo2:27017")
+	RootCmd.Flags().StringVarP(&database, "database", "d", "journaldb", "Database to run queries against")
+	RootCmd.Flags().StringVarP(&collection, "collection", "c", "journal", "Collection to run queries against")
+	RootCmd.Flags().IntVarP(&timeout, "timeout", "T", 15, "db query timeout in seconds")
 }
 
 // initConfig reads in config file and ENV variables if set.
