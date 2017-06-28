@@ -16,8 +16,10 @@ Flags:
   -d, --database string     Database to run queries against (default "journaldb")
   -h, --help                help for mongobench
   -H, --host string         IP addresses or Hostnames and ports of the mongo hosts to connect to separated by commas, example: mongo1:27017, mongo2:27017 (default "localhost:27017")
+  -p, --password string     Password for DB Authentication, Do not use this if you DB doesnt have authentication enabled
   -q, --queryFile string    Path to the query file, one query per line. Only the query string, example: {"branchCode":230}" (default "/tmp/query")
   -t, --threads int         Total number of threads to use. Equal to number of queries against mongodb (default 100)
   -T, --timeout int         db query timeout in seconds (default 15)
+  -u, --username string     Username for DB Authentication, Do not use this if you DB doesnt have authentication enabled
   -v, --version             Prints version
-```
+  ```
