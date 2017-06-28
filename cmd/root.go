@@ -119,7 +119,7 @@ func init() {
 	RootCmd.Flags().StringVarP(&collection, "collection", "c", "journal", "Collection to run queries against")
 	RootCmd.Flags().IntVarP(&timeout, "timeout", "T", 15, "db query timeout in seconds")
 	RootCmd.Flags().StringVarP(&username, "username", "u", "", "Username for DB Authentication, Do not use this if you DB doesnt have authentication enabled")
-	RootCmd.Flags().StringVarP(&username, "password", "p", "", "Password for DB Authentication, Do not use this if you DB doesnt have authentication enabled")
+	RootCmd.Flags().StringVarP(&password, "password", "p", "", "Password for DB Authentication, Do not use this if you DB doesnt have authentication enabled")
 }
 
 // initConfig reads in config file and ENV variables if set.
