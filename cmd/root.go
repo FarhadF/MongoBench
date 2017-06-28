@@ -34,6 +34,8 @@ var (
 	database      string
 	collection    string
 	timeout       int
+	username      string
+	password      string
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -50,7 +52,7 @@ func rootCmd(cmd *cobra.Command, args []string) {
 	if versionFlag := getFlagBoolPtr(cmd, "version"); versionFlag != nil {
 		fmt.Println("MongoBench v1.0.0")
 	} else {
-		bench.Bench(threads, batch, queryFilePath, host, database, collection, timeout)
+		bench.Bench(threads, batch, queryFilePath, host, database, collection, timeout, username, password)
 	}
 }
 
@@ -116,6 +118,8 @@ func init() {
 	RootCmd.Flags().StringVarP(&database, "database", "d", "journaldb", "Database to run queries against")
 	RootCmd.Flags().StringVarP(&collection, "collection", "c", "journal", "Collection to run queries against")
 	RootCmd.Flags().IntVarP(&timeout, "timeout", "T", 15, "db query timeout in seconds")
+	RootCmd.Flags().StringVarP(&username, "username", "u", "", "Username for DB Authentication")
+	RootCmd.Flags().StringVarP(&username, "password", "p", "", "Password for DB Authentication")
 }
 
 // initConfig reads in config file and ENV variables if set.

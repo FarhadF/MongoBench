@@ -13,16 +13,18 @@ import (
 	"time"
 )
 
-func Bench(threads int, batch int, queryFilePath string, host string, database string, collection string, timeout int) {
+func Bench(threads int, batch int, queryFilePath string, host string, database string, collection string, timeout int, username string, password string) {
 	mongoDbDialInfo := &mgo.DialInfo{
 		Addrs:    []string{host},
 		Timeout:  time.Duration(timeout) * time.Second,
 		Database: database,
+		Username: username,
+		Password: password,
 	}
 
 	mongoSession, err := mgo.DialWithInfo(mongoDbDialInfo)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	mongoSession.SetMode(mgo.Monotonic, true)
 
