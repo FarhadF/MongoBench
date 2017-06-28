@@ -10,12 +10,14 @@ import (
 	"math/rand"
 	"os"
 	//"sync"
+	"strings"
 	"time"
 )
 
 func Bench(threads int, batch int, queryFilePath string, host string, database string, collection string, timeout int, username string, password string) {
+	hosts := strings.Split(host, ",")
 	mongoDbDialInfo := &mgo.DialInfo{
-		Addrs:    []string{host},
+		Addrs:    hosts,
 		Timeout:  time.Duration(timeout) * time.Second,
 		Database: database,
 		Username: username,
