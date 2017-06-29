@@ -1,15 +1,14 @@
 package bench
 
 import (
-	//"encoding/json"
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
 	"math/rand"
 	"os"
-	//"sync"
 	"strings"
 	"time"
 )
@@ -76,10 +75,8 @@ func Bench(threads int, batch int, queryFilePath string, host string, database s
 }
 
 func RunQuery(query int, b int, mongoSession *mgo.Session, ch chan time.Duration, lines []string, q []bson.M) {
-	//defer waitGroup.Done()
 	sessionCopy := mongoSession.Copy()
 	rand.Seed(time.Now().UnixNano())
-	//u := rand.Int() % len(users)
 
 	Collection := sessionCopy.DB("journaldb").C("journal")
 	defer sessionCopy.Close()
@@ -89,9 +86,13 @@ func RunQuery(query int, b int, mongoSession *mgo.Session, ch chan time.Duration
 	err := Collection.Find(q[n]).All(&res)
 	dur := time.Since(start)
 	if err != nil {
-		log.Println("Find:", err)
+		log.Println("Find failed:", err)
 	}
-	fmt.Println("B:", b, "T:", query, "D:", dur, "Q:", q[n])
+	js, err := json.Marshal(q[n])
+	if err != nil {
+		log.Println("Error marshaling output: ", err)
+	}
+	fmt.Println("B:", b, "T:", query, "D:", dur, "Q:", string(js))
 	ch <- dur
 
 }
