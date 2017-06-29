@@ -50,8 +50,11 @@ var RootCmd = &cobra.Command{
 
 func rootCmd(cmd *cobra.Command, args []string) {
 	if versionFlag := getFlagBoolPtr(cmd, "version"); versionFlag != nil {
-		fmt.Println("MongoBench v1.0.0")
+		fmt.Println("MongoBench v1.0.1")
 	} else {
+		if batch >= threads {
+			batch = threads
+		}
 		bench.Bench(threads, batch, queryFilePath, host, database, collection, timeout, username, password)
 	}
 }
