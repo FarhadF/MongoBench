@@ -1,5 +1,5 @@
 # MongoBench
-Benchmark your MongoDB Deployment.
+MongoDB Benchmarking.
 
 Build steps:
 1. Clone the repository in your `$GOPATH/src/`
